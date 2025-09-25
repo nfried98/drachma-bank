@@ -250,11 +250,11 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" placeholder="Enter your password">
             </div>
-            <button class="btn btn-primary" onclick="login()">
+            <button id="login-btn" class="btn btn-primary" onclick="login()">
                 <span id="login-text">Login</span>
                 <span id="login-loading" class="loading hidden"></span>
             </button>
-            <button class="btn btn-secondary" onclick="register()">
+            <button id="register-btn" class="btn btn-secondary" onclick="register()">
                 <span id="register-text">Create Account</span>
                 <span id="register-loading" class="loading hidden"></span>
             </button>
@@ -392,7 +392,7 @@
                 return;
             }
 
-            setLoading('register', 'register-loading', 'register-text', true);
+            setLoading('register-btn', 'register-loading', 'register-text', true);
 
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -410,7 +410,7 @@
                 console.error('Registration error:', error);
                 showMessage(error.message);
             } finally {
-                setLoading('register', 'register-loading', 'register-text', false);
+                setLoading('register-btn', 'register-loading', 'register-text', false);
             }
         };
 
@@ -424,7 +424,7 @@
                 return;
             }
 
-            setLoading('login', 'login-loading', 'login-text', true);
+            setLoading('login-btn', 'login-loading', 'login-text', true);
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
@@ -433,7 +433,7 @@
                 console.error('Login error:', error);
                 showMessage(error.message);
             } finally {
-                setLoading('login', 'login-loading', 'login-text', false);
+                setLoading('login-btn', 'login-loading', 'login-text', false);
             }
         };
 
