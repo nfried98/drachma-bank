@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drachma Bank - Digital Banking MVP</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .balance-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .balance-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .transaction-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e1e5e9;
+        }
+
+        .transaction-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .transaction-form input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .transaction-form button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            color: #155724;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .transaction-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo and Title -->
+        <div class="logo">
+            <i class="fas fa-university"></i> Drachma Bank
+        </div>
+        <div class="subtitle">Your Digital Banking Solution</div>
+
+        <!-- Error/Success Messages -->
+        <div id="message" class="hidden"></div>
+
+        <!-- Login/Register Form -->
+        <div id="auth-section">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            <button class="btn btn-primary" onclick="login()">
+                <span id="login-text">Login</span>
+                <span id="login-loading" class="loading hidden"></span>
+            </button>
+            <button class="btn btn-secondary" onclick="register()">
+                <span id="register-text">Create Account</span>
+                <span id="register-loading" class="loading hidden"></span>
+            </button>
+        </div>
+
+        <!-- Banking Dashboard -->
+        <div id="dashboard" class="hidden">
+            <!-- User Info -->
+            <div class="user-info">
+                <div>
+                    <strong id="user-email"></strong>
+                </div>
+                <button class="btn btn-danger" onclick="logout()" style="width: auto; padding: 8px 16px;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+
+            <!-- Balance Display -->
+            <div class="balance-display">
+                <div class="balance-label">Current Balance</div>
+                <div class="balance-amount" id="balance">$0.00</div>
+            </div>
+
+            <!-- Transaction Section -->
+            <div class="transaction-section">
+                <h3 style="margin-bottom: 20px; color: #333;">Make a Transaction</h3>
+                
+                <div class="transaction-form">
+                    <input type="number" id="amount" placeholder="Amount" step="0.01" min="0.01">
+                    <button class="btn btn-success" onclick="deposit()" style="width: auto; padding: 12px 20px;">
+                        <i class="fas fa-plus"></i> Deposit
+                    </button>
+                </div>
+                
+                <div class="transaction-form">
+                    <input type="number" id="withdraw-amount" placeholder="Amount" step="0.01" min="0.01">
+                    <button class="btn btn-danger" onclick="withdraw()" style="width: auto; padding: 12px 20px;">
+                        <i class="fas fa-minus"></i> Withdraw
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdhL0E7UobxPOhW4yYPzdxB350cCDYoCM",
+            authDomain: "drachma-62a89.firebaseapp.com",
+            projectId: "drachma-62a89",
+            storageBucket: "drachma-62a89.firebasestorage.app",
+            messagingSenderId: "886975863054",
+            appId: "1:886975863054:web:47a118342c559050ce9f5f"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global variables
+        let currentUser = null;
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                showDashboard();
+                loadUserBalance();
+            } else {
+                currentUser = null;
+                showAuth();
+            }
+        });
+
+        // Show authentication form
+        function showAuth() {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+        }
+
+        // Show banking dashboard
+        function showDashboard() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('user-email').textContent = currentUser.email;
+        }
+
+        // Show message
+        function showMessage(message, type = 'error') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = type;
+            messageDiv.classList.remove('hidden');
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Set loading state
+        function setLoading(buttonId, loadingId, textId, isLoading) {
+            const button = document.getElementById(buttonId);
+            const loading = document.getElementById(loadingId);
+            const text = document.getElementById(textId);
+            
+            if (isLoading) {
+                button.disabled = true;
+                loading.classList.remove('hidden');
+                text.classList.add('hidden');
+            } else {
+                button.disabled = false;
+                loading.classList.add('hidden');
+                text.classList.remove('hidden');
+            }
+        }
+
+        // Register new user
+        window.register = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showMessage('Please fill in all fields');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters');
+                return;
+            }
+
+            setLoading('register', 'register-loading', 'register-text', true);
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Create user document with initial balance
+                await setDoc(doc(db, 'users', user.uid), {
+                    email: email,
+                    balance: 0.00,
+                    createdAt: new Date()
+                });
+
+                showMessage('Account created successfully!', 'success');
+            } catch (error) {
+                console.error('Registration error:', error);
+                showMessage(error.message);
+            } finally {
+                setLoading('register', 'register-loading', 'register-text', false);
+            }
+        };
+
+        // Login user
+        window.login = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showMessage('Please fill in all fields');
+                return;
+            }
+
+            setLoading('login', 'login-loading', 'login-text', true);
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage('Login successful!', 'success');
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage(error.message);
+            } finally {
+                setLoading('login', 'login-loading', 'login-text', false);
+            }
+        };
+
+        // Logout user
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                showMessage('Logged out successfully', 'success');
+            } catch (error) {
+                console.error('Logout error:', error);
+                showMessage(error.message);
+            }
+        };
+
+        // Load user balance
+        async function loadUserBalance() {
+            if (!currentUser) return;
+
+            try {
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    document.getElementById('balance').textContent = `$${userData.balance.toFixed(2)}`;
+                }
+            } catch (error) {
+                console.error('Error loading balance:', error);
+                showMessage('Error loading balance');
+            }
+        }
+
+        // Deposit money
+        window.deposit = async function() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            
+            if (!amount || amount <= 0) {
+                showMessage('Please enter a valid amount');
+                return;
+            }
+
+            try {
+                const userRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userRef, {
+                    balance: increment(amount)
+                });
+                
+                document.getElementById('amount').value = '';
+                loadUserBalance();
+                showMessage(`Deposited $${amount.toFixed(2)} successfully!`, 'success');
+            } catch (error) {
+                console.error('Deposit error:', error);
+                showMessage('Error processing deposit');
+            }
+        };
+
+        // Withdraw money
+        window.withdraw = async function() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            
+            if (!amount || amount <= 0) {
+                showMessage('Please enter a valid amount');
+                return;
+            }
+
+            try {
+                // Check if user has sufficient balance
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const currentBalance = userDoc.data().balance;
+                
+                if (amount > currentBalance) {
+                    showMessage('Insufficient funds');
+                    return;
+                }
+
+                const userRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userRef, {
+                    balance: increment(-amount)
+                });
+                
+                document.getElementById('withdraw-amount').value = '';
+                loadUserBalance();
+                showMessage(`Withdrew $${amount.toFixed(2)} successfully!`, 'success');
+            } catch (error) {
+                console.error('Withdrawal error:', error);
+                showMessage('Error processing withdrawal');
+            }
+        };
+    </script>
+</body>
+</html>
