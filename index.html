@@ -14,35 +14,82 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a0a0a;
+            background-image: 
+                linear-gradient(45deg, rgba(255, 215, 0, 0.03) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(255, 215, 0, 0.03) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(255, 215, 0, 0.03) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(255, 215, 0, 0.03) 75%);
+            background-size: 60px 60px;
+            background-position: 0 0, 0 30px, 30px -30px, -30px 0px;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, transparent 0%, rgba(255, 215, 0, 0.1) 50%, transparent 100%),
+                linear-gradient(0deg, transparent 0%, rgba(255, 215, 0, 0.1) 50%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: #1a1a1a;
+            border: 3px solid #FFD700;
+            border-radius: 15px;
+            box-shadow: 
+                0 0 30px rgba(255, 215, 0, 0.3),
+                inset 0 0 30px rgba(255, 215, 0, 0.1);
             padding: 40px;
             width: 100%;
             max-width: 500px;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
         .logo {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: bold;
-            color: #667eea;
+            color: #FFD700;
             margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 3px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            width: 400px;
+            height: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+            transition: transform 0.3s ease;
+            object-fit: contain;
+        }
+
+        .logo img:hover {
+            transform: rotate(360deg);
         }
 
         .subtitle {
-            color: #666;
+            color: #CCCCCC;
             margin-bottom: 30px;
             font-size: 1.1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .form-group {
@@ -53,22 +100,31 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
+            color: #FFD700;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
 
         .form-group input {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e1e5e9;
+            border: 2px solid #333;
             border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s ease;
+            background: #2a2a2a;
+            color: #FFFFFF;
+            transition: all 0.3s ease;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            background: #333;
+        }
+
+        .form-group input::placeholder {
+            color: #888;
         }
 
         .btn {
@@ -81,70 +137,94 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #FFD700;
+            color: #1a1a1a;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            background: #FFF700;
         }
 
         .btn-secondary {
-            background: #f8f9fa;
-            color: #667eea;
-            border: 2px solid #667eea;
+            background: transparent;
+            color: #FFD700;
+            border: 2px solid #FFD700;
         }
 
         .btn-secondary:hover {
-            background: #667eea;
-            color: white;
+            background: #FFD700;
+            color: #1a1a1a;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
         }
 
         .btn-danger {
             background: #dc3545;
             color: white;
+            border: 2px solid #dc3545;
         }
 
         .btn-danger:hover {
             background: #c82333;
+            box-shadow: 0 0 20px rgba(220, 53, 69, 0.3);
         }
 
         .btn-success {
             background: #28a745;
             color: white;
+            border: 2px solid #28a745;
         }
 
         .btn-success:hover {
             background: #218838;
+            box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
         }
 
         .balance-display {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a1a;
             padding: 30px;
             border-radius: 15px;
             margin: 20px 0;
+            border: 2px solid #FFD700;
+            box-shadow: 
+                0 0 30px rgba(255, 215, 0, 0.4),
+                inset 0 0 30px rgba(255, 255, 255, 0.1);
         }
 
         .balance-amount {
             font-size: 3rem;
             font-weight: bold;
             margin: 10px 0;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
         }
 
         .balance-label {
             font-size: 1.1rem;
-            opacity: 0.9;
+            opacity: 0.8;
+            font-weight: 600;
         }
 
         .transaction-section {
             margin-top: 30px;
             padding-top: 30px;
-            border-top: 2px solid #e1e5e9;
+            border-top: 2px solid #FFD700;
+        }
+
+        .transaction-section h3 {
+            color: #FFD700;
+            text-shadow: none;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.2rem;
         }
 
         .transaction-form {
@@ -156,9 +236,23 @@
         .transaction-form input {
             flex: 1;
             padding: 12px 16px;
-            border: 2px solid #e1e5e9;
+            border: 2px solid #333;
             border-radius: 10px;
             font-size: 16px;
+            background: #2a2a2a;
+            color: #FFFFFF;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-form input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            background: #333;
+        }
+
+        .transaction-form input::placeholder {
+            color: #888;
         }
 
         .transaction-form button {
@@ -175,47 +269,42 @@
         }
 
         .error {
-            color: #dc3545;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid #ff6b6b;
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.2);
         }
 
         .success {
-            color: #155724;
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
+            color: #51cf66;
+            background: rgba(81, 207, 102, 0.1);
+            border: 2px solid #51cf66;
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(81, 207, 102, 0.2);
         }
 
         .user-info {
-            background: #f8f9fa;
+            background: #2a2a2a;
+            border: 2px solid #FFD700;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
         }
 
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .user-info strong {
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
 
         @media (max-width: 600px) {
             .container {
@@ -233,7 +322,8 @@
     <div class="container">
         <!-- Logo and Title -->
         <div class="logo">
-            <i class="fas fa-university"></i> Drachma Bank
+            <img src="drachma.png" alt="Drachma Coin">
+            <div>DRACHMA BANK</div>
         </div>
         <div class="subtitle">Your Digital Banking Solution</div>
 
@@ -250,14 +340,8 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" placeholder="Enter your password">
             </div>
-            <button id="login-btn" class="btn btn-primary" onclick="login()">
-                <span id="login-text">Login</span>
-                <span id="login-loading" class="loading hidden"></span>
-            </button>
-            <button id="register-btn" class="btn btn-secondary" onclick="register()">
-                <span id="register-text">Create Account</span>
-                <span id="register-loading" class="loading hidden"></span>
-            </button>
+            <button class="btn btn-primary" onclick="login()">Login</button>
+            <button class="btn btn-secondary" onclick="register()">Create Account</button>
         </div>
 
         <!-- Banking Dashboard -->
@@ -360,22 +444,6 @@
             }, 5000);
         }
 
-        // Set loading state
-        function setLoading(buttonId, loadingId, textId, isLoading) {
-            const button = document.getElementById(buttonId);
-            const loading = document.getElementById(loadingId);
-            const text = document.getElementById(textId);
-            
-            if (isLoading) {
-                button.disabled = true;
-                loading.classList.remove('hidden');
-                text.classList.add('hidden');
-            } else {
-                button.disabled = false;
-                loading.classList.add('hidden');
-                text.classList.remove('hidden');
-            }
-        }
 
         // Register new user
         window.register = async function() {
@@ -392,8 +460,6 @@
                 return;
             }
 
-            setLoading('register-btn', 'register-loading', 'register-text', true);
-
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
@@ -409,8 +475,6 @@
             } catch (error) {
                 console.error('Registration error:', error);
                 showMessage(error.message);
-            } finally {
-                setLoading('register-btn', 'register-loading', 'register-text', false);
             }
         };
 
@@ -424,16 +488,12 @@
                 return;
             }
 
-            setLoading('login-btn', 'login-loading', 'login-text', true);
-
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 showMessage('Login successful!', 'success');
             } catch (error) {
                 console.error('Login error:', error);
                 showMessage(error.message);
-            } finally {
-                setLoading('login-btn', 'login-loading', 'login-text', false);
             }
         };
 
