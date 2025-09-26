@@ -227,6 +227,89 @@
             font-size: 1.2rem;
         }
 
+        .leaderboard-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #FFD700;
+        }
+
+        .leaderboard-section h3 {
+            color: #FFD700;
+            text-shadow: none;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .leaderboard {
+            background: #2a2a2a;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: #333;
+            border-radius: 8px;
+            border: 1px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: #444;
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+
+        .leaderboard-item.current-user {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a1a;
+            border-color: #FFD700;
+            font-weight: bold;
+        }
+
+        .leaderboard-rank {
+            font-weight: bold;
+            color: #FFD700;
+            min-width: 30px;
+        }
+
+        .leaderboard-item.current-user .leaderboard-rank {
+            color: #1a1a1a;
+        }
+
+        .leaderboard-username {
+            flex: 1;
+            margin-left: 15px;
+            color: #FFFFFF;
+        }
+
+        .leaderboard-item.current-user .leaderboard-username {
+            color: #1a1a1a;
+        }
+
+        .leaderboard-balance {
+            font-weight: bold;
+            color: #51cf66;
+        }
+
+        .leaderboard-item.current-user .leaderboard-balance {
+            color: #1a1a1a;
+        }
+
+        .loading-text {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
+
         .transaction-form {
             display: flex;
             gap: 10px;
@@ -380,6 +463,14 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Leaderboard Section -->
+            <div class="leaderboard-section">
+                <h3><i class="fas fa-trophy"></i> Top 10 Leaderboard</h3>
+                <div class="leaderboard" id="leaderboard">
+                    <div class="loading-text">Loading leaderboard...</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -388,7 +479,7 @@
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, getDocs, collection } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // Firebase configuration
         const firebaseConfig = {
@@ -431,6 +522,8 @@
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('user-email').textContent = currentUser.email;
+            loadUserBalance();
+            loadLeaderboard();
         }
 
         // Show message
@@ -524,6 +617,69 @@
             }
         }
 
+        // Load leaderboard
+        async function loadLeaderboard() {
+            try {
+                const leaderboardDiv = document.getElementById('leaderboard');
+                leaderboardDiv.innerHTML = '<div class="loading-text">Loading leaderboard...</div>';
+
+                // Get all users
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const users = [];
+                
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    if (userData.balance !== undefined) {
+                        users.push({
+                            id: doc.id,
+                            email: userData.email,
+                            balance: userData.balance
+                        });
+                    }
+                });
+
+                console.log('Loaded users for leaderboard:', users.length);
+
+                // Sort by balance (descending)
+                users.sort((a, b) => b.balance - a.balance);
+
+                // Take top 10
+                const top10 = users.slice(0, 10);
+
+                // Display leaderboard
+                if (top10.length === 0) {
+                    leaderboardDiv.innerHTML = '<div class="loading-text">No users found. Be the first to make a deposit!</div>';
+                    return;
+                }
+
+                let leaderboardHTML = '';
+                top10.forEach((user, index) => {
+                    const isCurrentUser = currentUser && user.id === currentUser.uid;
+                    const rank = index + 1;
+                    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                    
+                    leaderboardHTML += `
+                        <div class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
+                            <div class="leaderboard-rank">${medal} ${rank}</div>
+                            <div class="leaderboard-username">${user.email}</div>
+                            <div class="leaderboard-balance">$${user.balance.toFixed(2)}</div>
+                        </div>
+                    `;
+                });
+
+                leaderboardDiv.innerHTML = leaderboardHTML;
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                console.error('Error details:', error.message);
+                document.getElementById('leaderboard').innerHTML = `
+                    <div class="loading-text">
+                        Error loading leaderboard: ${error.message}<br>
+                        <small>Check console for details</small>
+                    </div>
+                `;
+            }
+        }
+
         // Deposit money
         window.deposit = async function() {
             const amount = parseFloat(document.getElementById('amount').value);
@@ -541,6 +697,7 @@
                 
                 document.getElementById('amount').value = '';
                 loadUserBalance();
+                loadLeaderboard();
                 showMessage(`Deposited $${amount.toFixed(2)} successfully!`, 'success');
             } catch (error) {
                 console.error('Deposit error:', error);
@@ -574,6 +731,7 @@
                 
                 document.getElementById('withdraw-amount').value = '';
                 loadUserBalance();
+                loadLeaderboard();
                 showMessage(`Withdrew $${amount.toFixed(2)} successfully!`, 'success');
             } catch (error) {
                 console.error('Withdrawal error:', error);
