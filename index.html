@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drachma Bank - Digital Banking MVP</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -81,9 +82,6 @@
             object-fit: contain;
         }
 
-        .logo img:hover {
-            transform: rotate(360deg);
-        }
 
         .subtitle {
             color: #CCCCCC;
@@ -205,6 +203,36 @@
             font-weight: bold;
             margin: 10px 0;
             text-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .balance-full {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            font-weight: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+
+        /* Responsive font sizing for very large numbers */
+        .balance-amount.large-number {
+            font-size: 2.5rem;
+        }
+
+        .balance-amount.very-large-number {
+            font-size: 2rem;
+        }
+
+        .balance-amount.extremely-large-number {
+            font-size: 1.5rem;
         }
 
         .balance-label {
@@ -260,6 +288,8 @@
             border-radius: 8px;
             border: 1px solid #555;
             transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
         }
 
         .leaderboard-item:hover {
@@ -298,10 +328,26 @@
         .leaderboard-balance {
             font-weight: bold;
             color: #51cf66;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            text-align: right;
+        }
+
+        .leaderboard-balance .balance-full {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            font-weight: normal;
+            margin-top: 2px;
         }
 
         .leaderboard-item.current-user .leaderboard-balance {
             color: #1a1a1a;
+        }
+
+        .leaderboard-item.current-user .leaderboard-balance .balance-full {
+            color: #1a1a1a;
+            opacity: 0.7;
         }
 
         .loading-text {
@@ -388,6 +434,67 @@
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
 
+        /* Balance History Chart Styles */
+        .chart-tooltip {
+            position: fixed;
+            background: #1a1a1a;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            z-index: 1000;
+            pointer-events: none;
+            min-width: 350px;
+            max-width: 450px;
+        }
+
+        .chart-tooltip h4 {
+            color: #FFD700;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            height: 200px;
+        }
+
+        .no-data-message {
+            color: #888;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+        }
+
+        .debug-section {
+            background: #2a2a2a;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .debug-section h4 {
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+
+        .debug-info {
+            color: #CCCCCC;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
 
         @media (max-width: 600px) {
             .container {
@@ -398,6 +505,11 @@
             .transaction-form {
                 flex-direction: column;
             }
+
+            .chart-tooltip {
+                min-width: 280px;
+                max-width: 320px;
+            }
         }
     </style>
 </head>
@@ -405,8 +517,7 @@
     <div class="container">
         <!-- Logo and Title -->
         <div class="logo">
-            <img src="drachma.png" alt="Drachma Coin">
-            <div>DRACHMA BANK</div>
+            <img src="drachma.png" alt="Drachma Coin"> DRACHMA BANK
         </div>
         <div class="subtitle">Your Digital Banking Solution</div>
 
@@ -447,7 +558,7 @@
 
             <!-- Transaction Section -->
             <div class="transaction-section">
-                <h3 style="margin-bottom: 20px; color: #333;">Make a Transaction</h3>
+                <h3>Make a Transaction</h3>
                 
                 <div class="transaction-form">
                     <input type="number" id="amount" placeholder="Amount" step="0.01" min="0.01">
@@ -462,6 +573,33 @@
                         <i class="fas fa-minus"></i> Withdraw
                     </button>
                 </div>
+                
+                <div class="transaction-form">
+                    <button class="btn btn-danger" onclick="withdrawFullBalance()" style="width: 100%; padding: 12px 20px; margin-top: 10px;">
+                        <i class="fas fa-money-bill-wave"></i> Withdraw Full Balance
+                    </button>
+                </div>
+            </div>
+
+            <!-- Debug Section -->
+            <div class="debug-section">
+                <h4>🔧 Debug Info</h4>
+                <div class="debug-info" id="debug-info">
+                    <div>• Hover over leaderboard users to see balance history</div>
+                    <div>• Make deposits/withdrawals to create history data</div>
+                    <div>• Check browser console (F12) for detailed logs</div>
+                    <div style="color: #ff6b6b; margin-top: 10px;">⚠️ Update Firebase rules to enable balance history!</div>
+                </div>
+            </div>
+
+            <!-- Balance History Management -->
+            <div class="transaction-section">
+                <h3>Balance History</h3>
+                <div class="transaction-form">
+                    <button class="btn btn-danger" onclick="clearBalanceHistory()" style="width: 100%; padding: 12px 20px;">
+                        <i class="fas fa-trash-alt"></i> Clear Balance History
+                    </button>
+                </div>
             </div>
 
             <!-- Leaderboard Section -->
@@ -474,12 +612,20 @@
         </div>
     </div>
 
+    <!-- Chart Tooltip -->
+    <div id="chart-tooltip" class="chart-tooltip hidden">
+        <h4 id="tooltip-title">Balance History</h4>
+        <div class="chart-container">
+            <canvas id="tooltip-chart"></canvas>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, getDocs, collection } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, getDocs, collection, addDoc, deleteDoc, query, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // Firebase configuration
         const firebaseConfig = {
@@ -498,6 +644,49 @@
 
         // Global variables
         let currentUser = null;
+        let chartTooltip = null;
+        let tooltipChart = null;
+
+        // Format number with abbreviations
+        function formatNumberWithAbbreviation(num) {
+            if (num < 1000) {
+                return {
+                    abbreviated: num.toFixed(2),
+                    full: num.toFixed(2)
+                };
+            } else if (num < 1000000) {
+                const abbreviated = (num / 1000).toFixed(2);
+                return {
+                    abbreviated: abbreviated + 'k',
+                    full: num.toFixed(2)
+                };
+            } else if (num < 1000000000) {
+                const abbreviated = (num / 1000000).toFixed(2);
+                return {
+                    abbreviated: abbreviated + 'M',
+                    full: num.toFixed(2)
+                };
+            } else if (num < 1000000000000) {
+                const abbreviated = (num / 1000000000).toFixed(2);
+                return {
+                    abbreviated: abbreviated + 'B',
+                    full: num.toFixed(2)
+                };
+            } else if (num < 1000000000000000) { // 1 quadrillion
+                const abbreviated = (num / 1000000000000).toFixed(2);
+                return {
+                    abbreviated: abbreviated + 'T',
+                    full: num.toFixed(2)
+                };
+            } else {
+                // For numbers >= 1 quadrillion, show in quadrillions
+                const abbreviated = (num / 1000000000000000).toFixed(2);
+                return {
+                    abbreviated: abbreviated + 'Q',
+                    full: num.toFixed(2)
+                };
+            }
+        }
 
         // Auth state listener
         onAuthStateChanged(auth, (user) => {
@@ -537,7 +726,6 @@
             }, 5000);
         }
 
-
         // Register new user
         window.register = async function() {
             const email = document.getElementById('email').value;
@@ -562,6 +750,14 @@
                     email: email,
                     balance: 0.00,
                     createdAt: new Date()
+                });
+
+                // Create initial balance history entry
+                await addDoc(collection(db, 'balanceHistory'), {
+                    userId: user.uid,
+                    balance: 0.00,
+                    timestamp: new Date(),
+                    type: 'initial'
                 });
 
                 showMessage('Account created successfully!', 'success');
@@ -609,7 +805,20 @@
                 const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    document.getElementById('balance').textContent = `$${userData.balance.toFixed(2)}`;
+                    const formatted = formatNumberWithAbbreviation(userData.balance);
+                    const balanceElement = document.getElementById('balance');
+                    
+                    // Apply responsive font sizing based on number size
+                    balanceElement.className = 'balance-amount';
+                    if (userData.balance >= 1e15) { // 1 quadrillion or more
+                        balanceElement.classList.add('extremely-large-number');
+                    } else if (userData.balance >= 1e12) { // 1 trillion or more
+                        balanceElement.classList.add('very-large-number');
+                    } else if (userData.balance >= 1e9) { // 1 billion or more
+                        balanceElement.classList.add('large-number');
+                    }
+                    
+                    balanceElement.innerHTML = `$${formatted.abbreviated}<div class="balance-full">$${formatted.full}</div>`;
                 }
             } catch (error) {
                 console.error('Error loading balance:', error);
@@ -657,12 +866,20 @@
                     const isCurrentUser = currentUser && user.id === currentUser.uid;
                     const rank = index + 1;
                     const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                    const formatted = formatNumberWithAbbreviation(user.balance);
                     
                     leaderboardHTML += `
-                        <div class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
+                        <div class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}" 
+                             data-user-id="${user.id}" 
+                             data-user-email="${user.email}"
+                             onmouseenter="showBalanceHistory(event, '${user.id}', '${user.email}')"
+                             onmouseleave="hideBalanceHistory()">
                             <div class="leaderboard-rank">${medal} ${rank}</div>
                             <div class="leaderboard-username">${user.email}</div>
-                            <div class="leaderboard-balance">$${user.balance.toFixed(2)}</div>
+                            <div class="leaderboard-balance">
+                                $${formatted.abbreviated}
+                                <div class="balance-full">$${formatted.full}</div>
+                            </div>
                         </div>
                     `;
                 });
@@ -680,6 +897,185 @@
             }
         }
 
+        // Show balance history chart
+        window.showBalanceHistory = async function(event, userId, userEmail) {
+            console.log('showBalanceHistory called for:', userEmail, 'ID:', userId);
+            
+            try {
+                // Get balance history for user
+                const historySnapshot = await getDocs(collection(db, 'balanceHistory'));
+                const history = [];
+                
+                console.log('Total history documents found:', historySnapshot.size);
+                
+                historySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    console.log('Checking document:', doc.id, 'userId:', data.userId, 'target userId:', userId);
+                    if (data.userId === userId) {
+                        history.push({
+                            balance: data.balance,
+                            timestamp: data.timestamp.toDate()
+                        });
+                    }
+                });
+
+                console.log('Found history entries for', userEmail, ':', history.length);
+
+                // Sort by timestamp
+                history.sort((a, b) => a.timestamp - b.timestamp);
+
+                // Show tooltip
+                const tooltip = document.getElementById('chart-tooltip');
+                const title = document.getElementById('tooltip-title');
+                title.textContent = `${userEmail} - Balance History`;
+                tooltip.classList.remove('hidden');
+
+                // Smart positioning to prevent clipping
+                const mouseX = event.clientX;
+                const mouseY = event.clientY;
+                const tooltipWidth = 450; // Max width
+                const tooltipHeight = 300; // Approximate height
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                let left = mouseX + 10;
+                let top = mouseY - 10;
+                
+                // Adjust if tooltip would go off right edge
+                if (left + tooltipWidth > viewportWidth) {
+                    left = mouseX - tooltipWidth - 10;
+                }
+                
+                // Adjust if tooltip would go off bottom edge
+                if (top + tooltipHeight > viewportHeight) {
+                    top = viewportHeight - tooltipHeight - 20;
+                }
+                
+                // Ensure tooltip doesn't go off left edge
+                if (left < 10) {
+                    left = 10;
+                }
+                
+                // Ensure tooltip doesn't go off top edge
+                if (top < 10) {
+                    top = 10;
+                }
+                
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = top + 'px';
+
+                // Destroy existing chart
+                if (tooltipChart) {
+                    tooltipChart.destroy();
+                    tooltipChart = null;
+                }
+
+                if (history.length === 0) {
+                    // Show no data message
+                    const chartContainer = document.querySelector('.chart-container');
+                    chartContainer.innerHTML = '<div class="no-data-message">No balance history available<br><small>Make a deposit or withdrawal to create history</small></div>';
+                } else {
+                    // Ensure canvas exists
+                    const chartContainer = document.querySelector('.chart-container');
+                    chartContainer.innerHTML = '<canvas id="tooltip-chart"></canvas>';
+
+                    // Get fresh canvas reference
+                    const canvas = document.getElementById('tooltip-chart');
+                    const ctx = canvas.getContext('2d');
+
+                    // Prepare data with exact time
+                    const labels = history.map(h => {
+                        const date = h.timestamp;
+                        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    });
+                    const data = history.map(h => h.balance);
+
+                    console.log('Creating chart with data:', { labels, data });
+
+                    tooltipChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Balance',
+                                data: data,
+                                borderColor: '#FFD700',
+                                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        color: '#CCCCCC',
+                                        maxTicksLimit: 6,
+                                        maxRotation: 45,
+                                        minRotation: 0
+                                    },
+                                    grid: {
+                                        color: '#333'
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        color: '#CCCCCC',
+                                        callback: function(value) {
+                                            return '$' + value.toFixed(2);
+                                        }
+                                    },
+                                    grid: {
+                                        color: '#333'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error loading balance history:', error);
+                const tooltip = document.getElementById('chart-tooltip');
+                const title = document.getElementById('tooltip-title');
+                title.textContent = `${userEmail} - Error`;
+                tooltip.classList.remove('hidden');
+                
+                const chartContainer = document.querySelector('.chart-container');
+                chartContainer.innerHTML = '<div class="no-data-message">Error loading data</div>';
+            }
+        };
+
+        // Hide balance history chart
+        window.hideBalanceHistory = function() {
+            const tooltip = document.getElementById('chart-tooltip');
+            tooltip.classList.add('hidden');
+        };
+
+        // Record balance history
+        async function recordBalanceHistory(userId, balance, type) {
+            try {
+                await addDoc(collection(db, 'balanceHistory'), {
+                    userId: userId,
+                    balance: balance,
+                    timestamp: new Date(),
+                    type: type
+                });
+                console.log('Recorded balance history:', { userId, balance, type });
+            } catch (error) {
+                console.error('Error recording balance history:', error);
+                // Don't show error to user as this is background functionality
+            }
+        }
+
         // Deposit money
         window.deposit = async function() {
             const amount = parseFloat(document.getElementById('amount').value);
@@ -690,10 +1086,24 @@
             }
 
             try {
+                // Get current balance before transaction
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const currentBalance = userDoc.data().balance;
+                
+                // Record pre-transaction balance
+                await recordBalanceHistory(currentUser.uid, currentBalance, 'pre_deposit');
+                
                 const userRef = doc(db, 'users', currentUser.uid);
                 await updateDoc(userRef, {
                     balance: increment(amount)
                 });
+                
+                // Get updated balance
+                const updatedUserDoc = await getDoc(userRef);
+                const newBalance = updatedUserDoc.data().balance;
+                
+                // Record post-transaction balance
+                await recordBalanceHistory(currentUser.uid, newBalance, 'deposit');
                 
                 document.getElementById('amount').value = '';
                 loadUserBalance();
@@ -724,10 +1134,20 @@
                     return;
                 }
 
+                // Record pre-transaction balance
+                await recordBalanceHistory(currentUser.uid, currentBalance, 'pre_withdrawal');
+
                 const userRef = doc(db, 'users', currentUser.uid);
                 await updateDoc(userRef, {
                     balance: increment(-amount)
                 });
+                
+                // Get updated balance
+                const updatedUserDoc = await getDoc(userRef);
+                const newBalance = updatedUserDoc.data().balance;
+                
+                // Record post-transaction balance
+                await recordBalanceHistory(currentUser.uid, newBalance, 'withdrawal');
                 
                 document.getElementById('withdraw-amount').value = '';
                 loadUserBalance();
@@ -736,6 +1156,86 @@
             } catch (error) {
                 console.error('Withdrawal error:', error);
                 showMessage('Error processing withdrawal');
+            }
+        };
+
+        // Withdraw full balance
+        window.withdrawFullBalance = async function() {
+            if (!currentUser) return;
+
+            try {
+                // Get current balance
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const currentBalance = userDoc.data().balance;
+                
+                if (currentBalance <= 0) {
+                    showMessage('No funds available to withdraw');
+                    return;
+                }
+
+                // Confirm withdrawal
+                const confirmWithdraw = confirm(`Are you sure you want to withdraw your full balance of $${currentBalance.toFixed(2)}?`);
+                if (!confirmWithdraw) return;
+
+                // Record pre-transaction balance
+                await recordBalanceHistory(currentUser.uid, currentBalance, 'pre_full_withdrawal');
+
+                const userRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userRef, {
+                    balance: increment(-currentBalance)
+                });
+                
+                // Get updated balance (should be 0)
+                const updatedUserDoc = await getDoc(userRef);
+                const newBalance = updatedUserDoc.data().balance;
+                
+                // Record post-transaction balance
+                await recordBalanceHistory(currentUser.uid, newBalance, 'full_withdrawal');
+                
+                loadUserBalance();
+                loadLeaderboard();
+                showMessage(`Withdrew full balance of $${currentBalance.toFixed(2)} successfully!`, 'success');
+            } catch (error) {
+                console.error('Full withdrawal error:', error);
+                showMessage('Error processing full withdrawal');
+            }
+        };
+
+        // Clear balance history
+        window.clearBalanceHistory = async function() {
+            if (!currentUser) return;
+
+            try {
+                // Confirm deletion
+                const confirmClear = confirm('Are you sure you want to clear all your balance history? This action cannot be undone.');
+                if (!confirmClear) return;
+
+                // Get all balance history documents for this user
+                const historyQuery = query(
+                    collection(db, 'balanceHistory'),
+                    where('userId', '==', currentUser.uid)
+                );
+                
+                const historySnapshot = await getDocs(historyQuery);
+                
+                if (historySnapshot.empty) {
+                    showMessage('No balance history found to clear');
+                    return;
+                }
+
+                // Delete all balance history documents
+                const deletePromises = [];
+                historySnapshot.forEach((docSnapshot) => {
+                    deletePromises.push(deleteDoc(docSnapshot.ref));
+                });
+
+                await Promise.all(deletePromises);
+                
+                showMessage(`Cleared ${historySnapshot.size} balance history records successfully!`, 'success');
+                console.log(`Cleared ${historySnapshot.size} balance history records for user ${currentUser.uid}`);
+            } catch (error) {
+                console.error('Error clearing balance history:', error);
+                showMessage('Error clearing balance history');
             }
         };
     </script>
