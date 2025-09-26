@@ -1,1 +1,1 @@
-## Drachma Bank - Digital Banking for The Parthenon
+## Drachma Bank - Digital Banking System for The Parthenon
