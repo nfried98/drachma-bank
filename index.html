@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drachma Bank - Digital Banking MVP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -14,35 +15,193 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Cinzel', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #0a0a0a;
-            background-image: 
-                linear-gradient(45deg, rgba(255, 215, 0, 0.03) 25%, transparent 25%),
-                linear-gradient(-45deg, rgba(255, 215, 0, 0.03) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, rgba(255, 215, 0, 0.03) 75%),
-                linear-gradient(-45deg, transparent 75%, rgba(255, 215, 0, 0.03) 75%);
-            background-size: 60px 60px;
-            background-position: 0 0, 0 30px, 30px -30px, -30px 0px;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
             position: relative;
         }
 
-        body::before {
-            content: '';
+        /* Animated Financial Background */
+        .financial-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
-                linear-gradient(90deg, transparent 0%, rgba(255, 215, 0, 0.1) 50%, transparent 100%),
-                linear-gradient(0deg, transparent 0%, rgba(255, 215, 0, 0.1) 50%, transparent 100%);
-            pointer-events: none;
+            background: #0a0a0a;
             z-index: 0;
+            pointer-events: none;
+        }
+
+        .chart-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+            animation: moveRight 8s linear infinite;
+        }
+
+        .chart-line:nth-child(1) {
+            top: 20%;
+            width: 300px;
+            animation-delay: 0s;
+            animation-duration: 12s;
+        }
+
+        .chart-line:nth-child(2) {
+            top: 35%;
+            width: 250px;
+            animation-delay: -2s;
+            animation-duration: 10s;
+        }
+
+        .chart-line:nth-child(3) {
+            top: 50%;
+            width: 400px;
+            animation-delay: -4s;
+            animation-duration: 15s;
+        }
+
+        .chart-line:nth-child(4) {
+            top: 65%;
+            width: 200px;
+            animation-delay: -6s;
+            animation-duration: 8s;
+        }
+
+        .chart-line:nth-child(5) {
+            top: 80%;
+            width: 350px;
+            animation-delay: -8s;
+            animation-duration: 14s;
+        }
+
+        .data-point {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 215, 0, 0.6);
+            border-radius: 50%;
+            animation: moveRight 8s linear infinite;
+        }
+
+        .data-point:nth-child(6) {
+            top: 25%;
+            animation-delay: 1s;
+            animation-duration: 11s;
+        }
+
+        .data-point:nth-child(7) {
+            top: 40%;
+            animation-delay: -1s;
+            animation-duration: 9s;
+        }
+
+        .data-point:nth-child(8) {
+            top: 55%;
+            animation-delay: -3s;
+            animation-duration: 13s;
+        }
+
+        .data-point:nth-child(9) {
+            top: 70%;
+            animation-delay: -5s;
+            animation-duration: 7s;
+        }
+
+        .data-point:nth-child(10) {
+            top: 85%;
+            animation-delay: -7s;
+            animation-duration: 12s;
+        }
+
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 215, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 215, 0, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        .floating-numbers {
+            position: absolute;
+            color: rgba(255, 215, 0, 0.1);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            animation: floatUp 15s linear infinite;
+        }
+
+        .floating-numbers:nth-child(11) {
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-numbers:nth-child(12) {
+            left: 30%;
+            animation-delay: -3s;
+        }
+
+        .floating-numbers:nth-child(13) {
+            left: 50%;
+            animation-delay: -6s;
+        }
+
+        .floating-numbers:nth-child(14) {
+            left: 70%;
+            animation-delay: -9s;
+        }
+
+        .floating-numbers:nth-child(15) {
+            left: 90%;
+            animation-delay: -12s;
+        }
+
+        @keyframes moveRight {
+            0% {
+                left: -100%;
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                left: 100%;
+                opacity: 0;
+            }
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                bottom: -50px;
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                bottom: 100vh;
+                opacity: 0;
+            }
         }
 
         .container {
@@ -58,11 +217,13 @@
             text-align: center;
             position: relative;
             z-index: 1;
+            margin: 20px auto;
         }
 
         .logo {
             font-size: 3rem;
-            font-weight: bold;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
             color: #FFD700;
             margin-bottom: 10px;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
@@ -87,6 +248,8 @@
             color: #CCCCCC;
             margin-bottom: 30px;
             font-size: 1.1rem;
+            font-family: 'Cinzel', serif;
+            font-weight: 400;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
@@ -514,6 +677,26 @@
     </style>
 </head>
 <body>
+    <!-- Animated Financial Background -->
+    <div class="financial-bg">
+        <div class="grid-lines"></div>
+        <div class="chart-line"></div>
+        <div class="chart-line"></div>
+        <div class="chart-line"></div>
+        <div class="chart-line"></div>
+        <div class="chart-line"></div>
+        <div class="data-point"></div>
+        <div class="data-point"></div>
+        <div class="data-point"></div>
+        <div class="data-point"></div>
+        <div class="data-point"></div>
+        <div class="floating-numbers">$1,234.56</div>
+        <div class="floating-numbers">$2,847.92</div>
+        <div class="floating-numbers">$5,678.34</div>
+        <div class="floating-numbers">$9,123.45</div>
+        <div class="floating-numbers">$12,456.78</div>
+    </div>
+
     <div class="container">
         <!-- Logo and Title -->
         <div class="logo">
@@ -646,6 +829,7 @@
         let currentUser = null;
         let chartTooltip = null;
         let tooltipChart = null;
+        let tooltipTimeout = null;
 
         // Format number with abbreviations
         function formatNumberWithAbbreviation(num) {
@@ -694,11 +878,36 @@
                 currentUser = user;
                 showDashboard();
                 loadUserBalance();
+                setupTooltipEventListeners();
             } else {
                 currentUser = null;
                 showAuth();
             }
         });
+
+        // Setup event listeners to hide tooltip on scroll and mouse leave
+        function setupTooltipEventListeners() {
+            // Hide tooltip when scrolling
+            window.addEventListener('scroll', function() {
+                hideBalanceHistory();
+            });
+
+            // Hide tooltip when mouse leaves the leaderboard area
+            const leaderboard = document.getElementById('leaderboard');
+            if (leaderboard) {
+                leaderboard.addEventListener('mouseleave', function() {
+                    hideBalanceHistory();
+                });
+            }
+
+            // Hide tooltip when clicking anywhere on the page
+            document.addEventListener('click', function(event) {
+                const tooltip = document.getElementById('chart-tooltip');
+                if (!tooltip.contains(event.target)) {
+                    hideBalanceHistory();
+                }
+            });
+        }
 
         // Show authentication form
         function showAuth() {
@@ -901,6 +1110,12 @@
         window.showBalanceHistory = async function(event, userId, userEmail) {
             console.log('showBalanceHistory called for:', userEmail, 'ID:', userId);
             
+            // Clear any existing timeout
+            if (tooltipTimeout) {
+                clearTimeout(tooltipTimeout);
+                tooltipTimeout = null;
+            }
+            
             try {
                 // Get balance history for user
                 const historySnapshot = await getDocs(collection(db, 'balanceHistory'));
@@ -963,6 +1178,11 @@
                 
                 tooltip.style.left = left + 'px';
                 tooltip.style.top = top + 'px';
+
+                // Set timeout to auto-hide tooltip after 10 seconds
+                tooltipTimeout = setTimeout(() => {
+                    hideBalanceHistory();
+                }, 10000);
 
                 // Destroy existing chart
                 if (tooltipChart) {
@@ -1058,6 +1278,18 @@
         window.hideBalanceHistory = function() {
             const tooltip = document.getElementById('chart-tooltip');
             tooltip.classList.add('hidden');
+            
+            // Clear timeout
+            if (tooltipTimeout) {
+                clearTimeout(tooltipTimeout);
+                tooltipTimeout = null;
+            }
+            
+            // Destroy chart to prevent memory leaks
+            if (tooltipChart) {
+                tooltipChart.destroy();
+                tooltipChart = null;
+            }
         };
 
         // Record balance history
